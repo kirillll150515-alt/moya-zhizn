@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Моя жизнь</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101827;color:#f4f7ff;font:16px Arial;user-select:none}
+header{padding:14px 16px;background:#18263a;display:flex;justify-content:space-between;align-items:center}
+h1{font-size:22px;margin:0}.sub{font-size:12px;color:#a9bad2}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px}
+.stat{background:#22334c;border-radius:12px;padding:9px;text-align:center;font-size:13px}.stat b{display:block;font-size:17px;margin-top:4px}
+.scene{margin:0 10px;height:210px;border-radius:16px;overflow:hidden;position:relative;background:linear-gradient(#7bc8f3 0 60%,#79b85d 60%);border:2px solid #344d6a}
+.sun{position:absolute;right:28px;top:18px;width:38px;height:38px;background:#ffe68a;border-radius:50%}
+.building{position:absolute;bottom:38%;background:#657b99;border:3px solid #435975;width:75px;height:105px;left:10%}
+.building:after{content:"";position:absolute;inset:12px;background:repeating-linear-gradient(90deg,#ffe49a 0 9px,transparent 9px 19px),repeating-linear-gradient(#ffe49a 0 9px,transparent 9px 22px)}
+.house{position:absolute;bottom:18%;right:12%;font-size:72px}.road{position:absolute;bottom:0;height:38%;width:100%;background:#424d5c;border-top:5px solid #d8d5ad}
+.person{position:absolute;bottom:23%;left:47%;font-size:43px;filter:drop-shadow(0 3px 2px #334)}
+.sceneLabel{position:absolute;top:9px;left:10px;background:#13243ac9;padding:6px 9px;border-radius:8px;font-size:12px}
+.panel{padding:10px}.panel h2{font-size:17px;margin:4px 2px 9px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+button{border:0;border-radius:12px;background:#2d4565;color:white;padding:13px 9px;font-size:14px;font-weight:bold;min-height:52px}
+button:active{transform:scale(.97);background:#456b99}button small{display:block;color:#c1d4ed;font-weight:normal;margin-top:4px}
+.log{margin:10px;background:#19283d;border-radius:12px;padding:10px;min-height:50px;color:#c7d7ec;font-size:13px}
+nav{position:sticky;bottom:0;background:#17263a;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:7px}
+nav button{padding:10px 2px;min-height:44px;font-size:12px;background:#263b56}
+.hidden{display:none}.modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:18px}
+.box{background:#1d2d44;border-radius:16px;padding:18px;width:100%;max-width:400px;max-height:80vh;overflow:auto}.box h2{margin-top:0}
+</style></head><body>
+<header><div><h1>🏙️ МОЯ ЖИЗНЬ</h1><div class="sub" id="day">Понедельник • День 1</div></div><div>⭐ <b id="level">1</b></div></header>
+<div class="stats">
+<div class="stat">💵 Деньги<b id="money">250 ₽</b></div><div class="stat">🍔 Голод<b id="hunger">80%</b></div><div class="stat">⚡ Энергия<b id="energy">90%</b></div>
+</div>
+<div class="scene"><div class="sun"></div><div class="building"></div><div class="house">🏠</div><div class="road"></div><div class="person">🧍</div><div class="sceneLabel" id="place">📍 Твой район</div></div>
+<section class="panel" id="main">
+<h2>Что будем делать?</h2><div class="grid">
+<button onclick="work()">💼 Пойти на работу<small>Заработать деньги</small></button>
+<button onclick="eat()">🍔 Купить еду<small>Цена: 30 ₽</small></button>
+<button onclick="sleep()">🛌 Поспать<small>Восстановить энергию</small></button>
+<button onclick="walk()">🚶 Прогуляться<small>Поднять настроение</small></button>
+<button onclick="openShop()">🛒 Магазин<small>Еда и вещи</small></button>
+<button onclick="openHome()">🏠 Недвижимость<small>Купить жильё</small></button>
+</div></section>
+<div class="log" id="log">Добро пожаловать! Найди работу, зарабатывай и построй свою жизнь с нуля.</div>
+<nav><button onclick="showJobs()">💼 Работа</button><button onclick="openShop()">🛍️ Магазин</button><button onclick="openHome()">🏠 Дом</button><button onclick="showStats()">📊 Статус</button></nav>
+<div id="modal" class="hidden modal" onclick="if(event.target.id==='modal')closeModal()"><div class="box" id="box"></div></div>
+<script>
+let s={money:250,hunger:80,energy:90,day:1,level:1,xp:0,job:'Безработный',home:'Комната у родителей',car:false};
+function save(){localStorage.setItem('moyaSave',JSON.stringify(s))}
+try{let old=JSON.parse(localStorage.getItem('moyaSave'));if(old)s=old}catch(e){}
+function msg(t){document.getElementById('log').textContent=t;save();draw()}
+function draw(){money.textContent=s.money+' ₽';hunger.textContent=s.hunger+'%';energy.textContent=s.energy+'%';day.textContent=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'][(s.day-1)%7]+' • День '+s.day;level.textContent=s.level;place.textContent='📍 '+s.home}
+function advance(){s.day++;s.hunger=Math.max(0,s.hunger-8);s.energy=Math.max(0,s.energy-7);if(s.hunger===0||s.energy===0)s.money=Math.max(0,s.money-10)}
+function work(){if(s.energy<20||s.hunger<15){msg('Сил мало! Поешь или поспи.');return}let pay=s.job==='Курьер'?100:s.job==='Продавец'?130:s.job==='Таксист'?190:50;s.money+=pay;s.xp+=20;s.energy-=25;s.hunger-=15;advance();if(s.xp>=100){s.level++;s.xp=0;msg('Повышение! Ты достиг уровня '+s.level+'! Зарплата: '+pay+' ₽')}else msg('Рабочая смена закончена. Ты заработал '+pay+' ₽.');}
+function eat(){if(s.money<30){msg('Не хватает денег на еду.');return}s.money-=30;s.hunger=Math.min(100,s.hunger+35);advance();msg('Вкусно! Голод уменьшился.')}
+function sleep(){s.energy=100;s.hunger=Math.max(0,s.hunger-12);advance();msg('Ты хорошо отдохнул. Новый день!')}
+function walk(){s.energy=Math.max(0,s.energy-10);s.hunger=Math.max(0,s.hunger-5);advance();s.xp+=5;msg('Ты прогулялся по району. Настроение улучшилось!')}
+function modal(html){box.innerHTML=html+'<p><button onclick="closeModal()">Закрыть</button></p>';modalEl.classList.remove('hidden')}const modalEl=document.getElementById('modal');
+function closeModal(){modalEl.classList.add('hidden')}
+function showJobs(){modal(`<h2>💼 Поиск работы</h2><p>Выбери профессию. Работа открывает новые возможности.</p>
+<button onclick="job('Курьер')">📦 Курьер — 100 ₽ за смену</button><br><br><button onclick="job('Продавец')">🛍️ Продавец — 130 ₽ за смену</button><br><br><button onclick="job('Таксист')">🚕 Таксист — 190 ₽ за смену</button>`)}
+function job(j){s.job=j;closeModal();msg('Теперь ты работаешь: '+j+'. Удачи на новой работе!')}
+function openShop(){modal(`<h2>🛒 Магазин</h2><p>🥪 Перекус — 30 ₽</p><button onclick="eat();closeModal()">Купить еду</button><p>👕 Красивая одежда — 120 ₽</p><button onclick="buy(120,'Новая одежда')">Купить одежду</button><p>🎧 Наушники — 200 ₽</p><button onclick="buy(200,'Наушники')">Купить наушники</button><p>🚲 Велосипед — 500 ₽</p><button onclick="buy(500,'Велосипед')">Купить велосипед</button>`)}
+function buy(n,item){if(s.money<n){msg('Не хватает денег!');closeModal();return}s.money-=n;msg('Куплено: '+item+'!');closeModal()}
+function openHome(){modal(`<h2>🏠 Недвижимость</h2><p>Сейчас: ${s.home}</p><p>🛏️ Съёмная квартира — 1 500 ₽</p><button onclick="homeBuy(1500,'Съёмная квартира')">Снять квартиру</button><p>🏡 Небольшой дом — 8 000 ₽</p><button onclick="homeBuy(8000,'Свой небольшой дом')">Купить дом</button>`)}
+function homeBuy(n,h){if(s.money<n){msg('Пока не хватает денег на это жильё.');closeModal();return}s.money-=n;s.home=h;msg('Новое жильё: '+h+'!');closeModal()}
+function showStats(){modal(`<h2>📊 Твой статус</h2><p>Профессия: ${s.job}</p><p>Жильё: ${s.home}</p><p>Уровень: ${s.level}</p><p>Опыт: ${s.xp}/100</p><p>День: ${s.day}</p><p>Машина: ${s.car?'Есть':'Пока нет'}</p><button onclick="if(confirm('Сбросить весь прогресс?')){localStorage.removeItem('moyaSave');location.reload()}">Сбросить прогресс</button>`)}
+draw();
+</script></body></html>
